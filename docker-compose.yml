@@ -1,0 +1,42 @@
+version: '3.3'
+
+services:
+  django:
+    container_name: django
+    build: 
+      context: ./backend
+    volumes:
+      - ./backend:/usr/src/app/
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=1
+      - SECRET_KEY=TEST
+      - ALLOWED_HOSTS=localhost,127.0.0.1
+    depends_on:
+      - migrate
+
+  migrate:
+    container_name: migrate
+    build: 
+      context: ./backend
+    volumes:
+      - ./backend:/usr/src/app/
+    command: python manage.py migrate
+
+  sqlite:
+    container_name: sqlite
+    image: yuricarmo/sqlite3
+    volumes:
+      - ./backend/db:/usr/src/app/db
+    stdin_open: true
+    tty: true
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - django
